@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckIcon, CopyIcon } from "lucide-react";
+import SharedLayout from "./components/SharedLayout";
+import HeightAnimationExample from "./components/HeightAnimationExample";
+import StyledWithoutDrag from "./components/StyledWithoutDrag";
+import FeedbackComponentCSS from "./components/FeedbackComponentCSS";
+import MultiStepComponent from "./components/MultiStep";
 
 const variants = {
   hidden: { opacity: 0, scale: 0.5 },
@@ -16,7 +21,7 @@ const buttonCopy = {
 };
 
 function Spinner({ color, size = 20 }: { color: string; size?: number }) {
-  const bars = Array(12).fill(0);
+  const bars = Array.from({ length: 12 }, (_, i) => `bar-${i}`);
   return (
     <div
       className="wrapper"
@@ -27,8 +32,8 @@ function Spinner({ color, size = 20 }: { color: string; size?: number }) {
         } as React.CSSProperties
       }>
       <div className="spinner">
-        {bars.map((_, i) => (
-          <div className="bar" key={`spinner-bar-${i}`} />
+        {bars.map((id) => (
+          <div className="bar" key={id} />
         ))}
       </div>
     </div>
@@ -52,6 +57,7 @@ export default function Home() {
       <button
         aria-label="Copy code snippet"
         onClick={copy}
+        type="button"
         className="p-2 rounded-md bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-sm">
         <AnimatePresence mode="wait" initial={false}>
           {copied ? (
@@ -79,8 +85,10 @@ export default function Home() {
       <div className="outer-wrapper">
         <button
           className="blue-button"
-          disabled={buttonState !== "idle"}
+          disabled={buttonState === "loading"}
           onClick={() => {
+            if (buttonState === "success") return;
+
             setButtonState("loading");
 
             setTimeout(() => {
@@ -91,8 +99,39 @@ export default function Home() {
               setButtonState("idle");
             }, 3500);
           }}>
-          <span>{buttonCopy[buttonState]}</span>
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+              initial={{ opacity: 0, y: -25 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 25 }}
+              key={buttonState}>
+              {buttonCopy[buttonState]}
+            </motion.span>
+          </AnimatePresence>
         </button>
+      </div>
+
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-2xl font-bold mb-4">SharedLayout Example</h2>
+        <SharedLayout />
+      </div>
+
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-2xl font-bold mb-4">Height Animation Example</h2>
+        <HeightAnimationExample />
+      </div>
+
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-2xl font-bold mb-4">
+          Multi Step Component Example
+        </h2>
+        <MultiStepComponent />
+      </div>
+
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-2xl font-bold mb-4">Feedback Component Example</h2>
+        <FeedbackComponentCSS />
       </div>
     </main>
   );
